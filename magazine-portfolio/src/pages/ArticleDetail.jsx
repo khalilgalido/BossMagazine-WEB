@@ -1,0 +1,81 @@
+import { useEffect, useState } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
+import './ArticleDetail.css'
+
+export default function ArticleDetail() {
+  const { slug } = useParams()
+  const [article, setArticle] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    supabase
+      .from('articles')
+      .select('*')
+      .eq('slug', slug)
+      .single()
+      .then(({ data }) => {
+        setArticle(data)
+        setLoading(false)
+      })
+  }, [slug])
+
+  if (loading) return (
+    <div className="article-detail__loading">
+      <span className="loading__dot"/><span className="loading__dot"/><span className="loading__dot"/>
+    </div>
+  )
+
+  if (!article) return (
+    <div className="article-detail__not-found">
+      <h2>Article not found</h2>
+      <Link to="/articles" className="btn-primary">Back to Articles</Link>
+    </div>
+  )
+
+  const formattedDate = article.published_at
+    ? new Date(article.published_at).toLocaleDateString('en-PH', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      })
+    : ''
+
+  return (
+    <main className="article-detail">
+      <div className="article-detail__hero">
+        {article.cover_image && (
+          <div className="article-detail__cover">
+            <img src={article.cover_image} alt={article.title} />
+          </div>
+        )}
+        <div className="article-detail__header">
+          <div className="article-detail__meta">
+            {article.tags?.map(tag => (
+              <span key={tag} className="article-detail__tag">{tag}</span>
+            ))}
+            {formattedDate && <span className="article-detail__date">{formattedDate}</span>}
+          </div>
+          <h1 className="article-detail__title">{article.title}</h1>
+          {article.excerpt && (
+            <p className="article-detail__excerpt">{article.excerpt}</p>
+          )}
+          {article.publication && (
+            <p className="article-detail__pub">Published in <em>{article.publication}</em></p>
+          )}
+        </div>
+      </div>
+
+      <div className="article-detail__body">
+        {article.content
+          ? article.content.split('\n').map((para, i) =>
+              para.trim() ? <p key={i}>{para}</p> : <br key={i} />
+            )
+          : <p className="empty-state">Full article content coming soon.</p>
+        }
+      </div>
+
+      <div className="article-detail__footer">
+        <Link to="/articles" className="article-detail__back">← Back to Articles</Link>
+      </div>
+    </main>
+  )
+}
