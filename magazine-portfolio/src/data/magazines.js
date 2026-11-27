@@ -8,6 +8,14 @@ function pages(issue, count, coverName = '1%20Cover%20Page') {
 
 const magazines = [
   {
+    id: 5,
+    title: 'November 2026',
+    issue: 'Issue 05',
+    date: 'November 2026',
+    cover_image: `${BASE}/NOVEMBER%202026%20ISSUE/1.png?raw=true`,
+    pages: pages('NOVEMBER%202026%20ISSUE', 36, '1'),
+  },
+  {
     id: 4,
     title: 'January 2026',
     issue: 'Issue 04',
